@@ -6,15 +6,15 @@ from sklearn.preprocessing import OneHotEncoder
 from os import listdir
 
 from pre_process import *
-from extraction_functions.extract_color import extract_test_color
-from extraction_functions.extract_dimensions import extract_dimensions
+from extraction_functions.extract_color import extract_photos_color_canny
+from extraction_functions.extract_dimensions import *
 
 
 def train_k_neighbors_classifier():
-    neigh = KNeighborsClassifier(n_neighbors=1)
+    neigh = KNeighborsClassifier(n_neighbors=5)
 
-    # df = pd.read_csv('./test.csv')
-    df = pd.concat([pd.read_csv('./test.csv'), pd.read_csv('./train.csv')])
+    df = pd.read_csv('./test.csv')
+    # df = pd.concat([pd.read_csv('./test.csv'), pd.read_csv('./train.csv')])
 
     n1 = int(len(df)*0.8)
     df = df.sample(frac=1)
@@ -42,23 +42,25 @@ def train_k_neighbors_classifier():
 
     results = pd.DataFrame({'y2': y2p, 'y': y2})
     results['score'] = results['y2']==results['y']
-    # print(results)
+
     print(sum(results['score'])/len(results))
     return neigh
 
 def classify_fruit(model, img):
     x = np.asarray(pre_process_image(img))
     X = np.asmatrix(x)
+   
     print(X)
     y = model.predict(X)
     print(y)
 
 def main():
     # generate_train_dataset()
-    # generate_test_dataset()
+    generate_test_dataset()
     model = train_k_neighbors_classifier()
 
     for img in listdir('./images_to_classify'):
+        print(img)
         classify_fruit(model, './images_to_classify/' + img)
 
 main()

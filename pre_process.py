@@ -5,7 +5,7 @@ from os import listdir
 from string import digits
 
 from extraction_functions.extract_color import *
-from extraction_functions.extract_dimensions import extract_dimensions
+from extraction_functions.extract_dimensions import *
 
 def add_white_border(img):
     shape=img.shape
@@ -35,10 +35,10 @@ def generate_train_dataset():
             img_matrix = add_white_border(img_matrix)
 
             print("Extracting color...")
-            r, g, b = extract_train_color(img_matrix)
+            r, g, b = extract_color_threshold(img_matrix)
 
             print("Extracting dimensions...")
-            w, h = extract_dimensions(img_matrix)
+            w, h = extract_dimensions_threshold(img_matrix)
 
             #get fruit type from directory name, rgb format from extract_color and width_heigth_proportion from width and height
             rgb = ("rgb(%d,%d,%d)" % (r, g, b))
@@ -73,14 +73,15 @@ def generate_test_dataset():
 
     for img in listdir('./photos_images'):
         print("Generating test dataframe...")
+        print(img)
         img_matrix = cv2.imread(str('./photos_images/' + img), 1)
         
         #extract image params
         print("Extracting color...")
-        r, g, b = extract_test_color(img_matrix)
+        r, g, b = extract_color_threshold(img_matrix)
 
         print("Extracting dimensions...")
-        w, h = extract_dimensions(img_matrix)
+        w, h = extract_dimensions_threshold(img_matrix)
 
         #get fruit type from directory name, rgb format from extract_color and width_heigth_proportion from width and height
         rgb = ("rgb(%d,%d,%d)" % (r, g, b))
@@ -105,7 +106,7 @@ def generate_test_dataset():
 
     #filter dataframe to eliminate extra rows
     test_df = test_df[test_df['r'] != 0]
-    sorted_test_df = test_df.sort_values(['r'])
+    sorted_test_df = test_df.sort_values(['width_heigth_proportion'])
     sorted_test_df.to_csv('test.csv')
     print(sorted_test_df)
 
@@ -115,10 +116,11 @@ def pre_process_image(img):
     
     #extract image params
     print("Extracting color...")
-    r, g, b = extract_test_color(img_matrix)
+    r, g, b = extract_color_threshold(img_matrix)
+
 
     print("Extracting dimensions...")
-    w, h = extract_dimensions(img_matrix)
+    w, h = extract_dimensions_threshold(img_matrix)
 
     #get fruit type from directory name, rgb format from extract_color and width_heigth_proportion from width and height
     rgb = ("rgb(%d,%d,%d)" % (r, g, b))
