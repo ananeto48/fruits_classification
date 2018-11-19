@@ -3,9 +3,10 @@ import numpy as np
 import pandas as pd
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import OneHotEncoder
+from os import listdir
 
-from dataframe_generator import *
-from extraction_functions.extract_color import *
+from pre_process import *
+from extraction_functions.extract_color import extract_test_color
 from extraction_functions.extract_dimensions import extract_dimensions
 
 
@@ -27,11 +28,10 @@ def train_k_neighbors_classifier():
     y1 = df1['fruit_type']
     y2 = df2['fruit_type']
 
-    df1 = df1.drop(columns=['fruit_type', 'rgb()', 'name', 'width', 'height'])
-    df2 = df2.drop(columns=['fruit_type', 'rgb()', 'name', 'width', 'height'])
+    cols = [0, 1, 2, 6, 7, 8]
 
-    x1 = df1.values[:,1:]
-    x2 = df2.values[:,1:]
+    df1 = df1.drop(df1.columns[cols], axis=1)
+    df2 = df2.drop(df2.columns[cols], axis=1)
 
     x1 = df1.values
     x2 = df2.values
@@ -42,13 +42,23 @@ def train_k_neighbors_classifier():
 
     results = pd.DataFrame({'y2': y2p, 'y': y2})
     results['score'] = results['y2']==results['y']
-    print(results)
+    # print(results)
     print(sum(results['score'])/len(results))
+    return neigh
 
+def classify_fruit(model, img):
+    x = np.asarray(pre_process_image(img))
+    X = np.asmatrix(x)
+    print(X)
+    y = model.predict(X)
+    print(y)
 
 def main():
     # generate_train_dataset()
     # generate_test_dataset()
-    train_k_neighbors_classifier()
+    model = train_k_neighbors_classifier()
+
+    for img in listdir('./images_to_classify'):
+        classify_fruit(model, './images_to_classify/' + img)
 
 main()

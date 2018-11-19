@@ -4,6 +4,9 @@ import pandas as pd
 from os import listdir
 from string import digits
 
+from extraction_functions.extract_color import *
+from extraction_functions.extract_dimensions import extract_dimensions
+
 def add_white_border(img):
     shape=img.shape
     w=shape[1]
@@ -68,9 +71,9 @@ def generate_test_dataset():
     i = 0
     data = [[0 for x in range(9)] for y in range(200)]
 
-    for img in listdir('./images'):
+    for img in listdir('./photos_images'):
         print("Generating test dataframe...")
-        img_matrix = cv2.imread(str('./images/' + img), 1)
+        img_matrix = cv2.imread(str('./photos_images/' + img), 1)
         
         #extract image params
         print("Extracting color...")
@@ -106,3 +109,20 @@ def generate_test_dataset():
     sorted_test_df.to_csv('test.csv')
     print(sorted_test_df)
 
+def pre_process_image(img):
+    print("Processing image...")
+    img_matrix = cv2.imread(img, 1)
+    
+    #extract image params
+    print("Extracting color...")
+    r, g, b = extract_test_color(img_matrix)
+
+    print("Extracting dimensions...")
+    w, h = extract_dimensions(img_matrix)
+
+    #get fruit type from directory name, rgb format from extract_color and width_heigth_proportion from width and height
+    rgb = ("rgb(%d,%d,%d)" % (r, g, b))
+    width_heigth_proportion = w/h
+
+    #insert data into data matrix
+    return [r, g, b, width_heigth_proportion]
