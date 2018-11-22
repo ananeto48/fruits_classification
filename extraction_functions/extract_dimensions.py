@@ -67,11 +67,8 @@ def extract_dimensions_threshold(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray = cv2.bilateralFilter(gray, 11, 17, 17)
     thresh = cv2.adaptiveThreshold(gray, 50, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 2)
-
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
-    dilated = cv2.dilate(thresh, kernel)
-
-    _, cnts, _  = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    _, cnts, _  = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     #insert fruit area of original image onto a new image with black background
     mask = np.zeros_like(img)
@@ -85,6 +82,8 @@ def extract_dimensions_threshold(img):
 
     cv2.fillPoly(mask, pts = cnts, color = (255,255,255))
 
+    # with each contour, draw boundingRect in green
+    # a minAreaRect in blue
     minAreaRect = []
     boxes = []
 
@@ -95,31 +94,28 @@ def extract_dimensions_threshold(img):
         # get the min area rect
         rect = cv2.minAreaRect(c)
         box = cv2.boxPoints(rect)
-
         # convert all coordinates floating point values to int
         box = np.int0(box)
         minAreaRect = box
         boxes.append((i,box,w,h))
 
-        # draw a red 'nghien' rectangle
-        cv2.drawContours(mask, [box], 0, (255, 0, 0), 5)
-
+   
     #order all the contours by area from biggest to smallest
     boxes.sort(key=lambda x: x[2]*x[3], reverse=True)
 
     #now we want to select the second biggest box (since the biggest one is the contour of the whole image)
-    minAreaRectangle = boxes[1][1]
-    minAreaRectangleIndex = boxes[0][0]
+    minAreaRectangle = boxes[0][1]
 
     #show that this is the contour we want
     cv2.drawContours(mask, [minAreaRectangle], 0, (255, 255, 255), 3)
 
     #get x and y points and width/height of the countour we selected
-    x,y,w,h = cv2.boundingRect(cnts[minAreaRectangleIndex])
+    x,y,w,h = cv2.boundingRect(minAreaRectangle)
     
     if w > h:
         temp = w
         w = h
         h = temp
 
+    print(w, h)
     return [w, h]
