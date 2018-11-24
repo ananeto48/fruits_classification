@@ -5,15 +5,15 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import OneHotEncoder
 from os import listdir
 
-from pre_process import *
-from extraction_functions.extract_color import extract_photos_color_canny
+from helpers.pre_process import *
+from extraction_functions.extract_color import *
 from extraction_functions.extract_dimensions import *
 
 
 def train_k_neighbors_classifier():
     neigh = KNeighborsClassifier(n_neighbors=5)
 
-    #df = pd.read_csv('./test.csv')
+    # df = pd.read_csv('./test.csv')
     df = pd.concat([pd.read_csv('./test.csv'), pd.read_csv('./train.csv')])
 
     n1 = int(len(df)*0.8)
@@ -55,11 +55,15 @@ def classify_fruit(model, img):
 
 def main():
     # generate_train_dataset()
-    # generate_test_dataset()
+    generate_test_dataset()
     model = train_k_neighbors_classifier()
 
     for img in listdir('./images_to_classify'):
+        if img == '.DS_Store':
+            continue
+
         print(img)
         classify_fruit(model, './images_to_classify/' + img)
+        print("-"*40)
 
 main()

@@ -116,15 +116,12 @@ def generate_test_dataset():
     print(sorted_test_df)
 
 def pre_process_image(img):
-    print("Processing image...")
     img_matrix = cv2.imread(img, 1)
     
     #extract image params
-    print("Extracting color...")
     r, g, b = extract_color_threshold(img_matrix)
 
 
-    print("Extracting dimensions...")
     w, h = extract_dimensions_threshold(img_matrix)
 
     #get fruit type from directory name, rgb format from extract_color and width_heigth_proportion from width and height
